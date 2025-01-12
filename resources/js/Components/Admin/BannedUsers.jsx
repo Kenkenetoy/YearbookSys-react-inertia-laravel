@@ -1,21 +1,19 @@
 import PropTypes from 'prop-types';
 
-const ApprovedUsers = ({ users }) => {
-    const approvedUsers = users.filter((user) => user.status === 'approved');
+const BannedUsers = ({ users }) => {
+    const bannedUsers = users.filter((user) => user.status === 'bannned');
 
     if (!users.length) {
-        return (
-            <div className="text-center text-gray-500">No approved users</div>
-        );
+        return <div className="text-center text-gray-500">No Banned users</div>;
     }
 
-    const handleBan = async (id) => {
+    const handleUnban = async (id) => {
         try {
-            const response = await axios.patch(`/admin/users/${id}/ban`);
-            console.log('User banned:', response.data);
+            const response = await axios.patch(`/admin/users/${id}/approve`);
+            console.log('User unbanned:', response.data);
             // Update your local state to reflect the changes (you can call a refresh or update logic here)
         } catch (error) {
-            console.error('Error banning user:', error);
+            console.error('Error unbanning user:', error);
         }
     };
 
@@ -28,7 +26,7 @@ const ApprovedUsers = ({ users }) => {
                 </tr>
             </thead>
             <tbody>
-                {approvedUsers.map((user) => (
+                {users.map((user) => (
                     <tr key={user.id}>
                         <td className="border border-gray-300 px-4 py-2">
                             {user.name}
@@ -52,15 +50,14 @@ const ApprovedUsers = ({ users }) => {
     );
 };
 
-ApprovedUsers.propTypes = {
+BannedUsers.propTypes = {
     users: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.number.isRequired,
             name: PropTypes.string.isRequired,
             email: PropTypes.string.isRequired,
-            status: PropTypes.string.isRequired, // Make sure to validate the status field
         }),
     ).isRequired,
 };
 
-export default ApprovedUsers;
+export default BannedUsers;

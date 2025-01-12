@@ -13,23 +13,25 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => {
         const pages = import.meta.glob('./Pages/**/*.jsx', { eager: true });
-        let page = pages[`./Pages/${name}.jsx`];
+        const page = pages[`./Pages/${name}.jsx`];
 
-        // Apply the authenticated layout if specified
-        if (page.default.layout === 'authenticated') {
-            page.default.layout = (content) => (
-                <AuthenticatedLayout>{content}</AuthenticatedLayout>
-            );
-        } else if (!page.default.layout) {
-            // Apply the default layout
-            page.default.layout = (content) => <Layout>{content}</Layout>;
-        }
+        // Assign a default layout dynamically based on user auth status in props
+        const withDefaultLayout = (component) => {
+            component.layout = (page) => {
+                const user = page.props?.auth?.user; // Ensure safe access to props
+                return user ? (
+                    <AuthenticatedLayout>{page}</AuthenticatedLayout>
+                ) : (
+                    <Layout>{page}</Layout>
+                );
+            };
+            return component;
+        };
 
-        return page;
+        return withDefaultLayout(page.default);
     },
     setup({ el, App, props }) {
         const root = createRoot(el);
-
         root.render(<App {...props} />);
     },
     progress: {

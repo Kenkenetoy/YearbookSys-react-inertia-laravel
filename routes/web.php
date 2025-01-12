@@ -26,12 +26,26 @@ Route::middleware('auth')->group(function () {
 });
 
 // routes/api.php
-Route::middleware('auth:sanctum')->get('/admin/users/pending', [UserController::class, 'pendingUsers']);
-Route::middleware('auth:sanctum')->get('/admin/users/approved', [UserController::class, 'approvedUsers']);
-Route::middleware('auth:sanctum')->get('/admin/users/rejected', [UserController::class, 'rejectedUsers']);
-Route::prefix('admin/users')->group(function () {
-    Route::patch('{id}/approve', [UserController::class, 'approve'])->name('admin.users.approve');
-    Route::patch('{id}/reject', [UserController::class, 'reject'])->name('admin.users.reject');
+Route::middleware('auth:sanctum')->group(function () {
+    // List of user statuses
+    $statuses = ['pending', 'approved', 'rejected', 'banned'];
+
+    // Loop through each status and create the route
+    foreach ($statuses as $status) {
+        Route::get("/admin/users/{$status}", [UserController::class, "{$status}Users"]);
+    }
 });
+
+Route::prefix('admin/users')->group(function () {
+    // List of actions
+    $actions = ['approve', 'reject', 'ban'];
+
+    // Loop through each action and create the route
+    foreach ($actions as $action) {
+        Route::patch("{id}/{$action}", [UserController::class, $action])
+            ->name("admin.users.{$action}");
+    }
+});
+
 
 require __DIR__.'/auth.php';

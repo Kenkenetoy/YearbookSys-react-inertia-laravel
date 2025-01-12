@@ -1,32 +1,26 @@
 import AdminDashboard from '@/components/Admin/AdminDashboard';
 import { Head } from '@inertiajs/react';
-import React from 'react';
+import axios from 'axios';
 
 export default function Dashboard() {
-    const [users, setUsers] = React.useState([]);
+    // Immediately invoke an async function to fetch data
+    async () => {
+        try {
+            const response = await axios.get('/users');
+            setUsers(response.data);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
 
-    React.useEffect(() => {
-        axios
-            .get('http://127.0.0.1:8000/admin/users/pending')
-            .then((response) => setUsers(response.data))
-            .catch((error) => console.error('Error fetching users:', error));
-    }, []);
     return (
         <>
             <Head title="Dashboard" />
-
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div>
-                            <AdminDashboard />
-                        </div>
-                    </div>
+            <div className="mx-auto max-w-7xl py-12 sm:px-6 lg:px-8">
+                <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                    <AdminDashboard />
                 </div>
             </div>
         </>
     );
 }
-
-// Assign the authenticated layout dynamically
-Dashboard.layout = 'authenticated';
